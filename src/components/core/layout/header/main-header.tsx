@@ -8,19 +8,12 @@ import Container from "@mui/material/Container";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Button } from "@mui/material";
-
-const languages = [
-  {
-    name: "English",
-    code: "en",
-  },
-  {
-    name: "French",
-    code: "fr",
-  },
-];
+import { getFromLS, saveToLS } from "@/utils/save-to-ls";
+import { LANGUAGES } from "@/settings/languages";
 
 const MainHeader = () => {
+  const languages = LANGUAGES;
+
   const [selectedLanguage, setSelectedLanguage] = React.useState("en");
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
@@ -33,6 +26,17 @@ const MainHeader = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const handleChangeLanguage = (language: string) => {
+    setSelectedLanguage(language);
+    saveToLS("locale", language);
+    handleCloseUserMenu();
+  };
+
+  React.useEffect(() => {
+    const language = getFromLS("locale");
+    setSelectedLanguage(language || "en");
+  }, []);
 
   return (
     <AppBar position="static">
@@ -85,8 +89,7 @@ const MainHeader = () => {
                 <MenuItem
                   key={language.code}
                   onClick={() => {
-                    setSelectedLanguage(language.code);
-                    handleCloseUserMenu();
+                    handleChangeLanguage(language.code);
                   }}
                 >
                   <Typography textAlign="center">{language.name}</Typography>
