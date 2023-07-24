@@ -9,11 +9,13 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Button } from "@mui/material";
 import { getFromLS, saveToLS } from "@/utils/save-to-ls";
-import { LANGUAGES } from "@/settings/languages";
+import { getBaseSettings } from "@/api/get-settings";
+import { LanguageType } from "types/settings";
 
 const MainHeader = () => {
-  const languages = LANGUAGES;
+  // const languages = LANGUAGES;
 
+  const [languages, setLanguages] = React.useState<LanguageType[]>([]);
   const [selectedLanguage, setSelectedLanguage] = React.useState("en");
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
@@ -33,9 +35,15 @@ const MainHeader = () => {
     handleCloseUserMenu();
   };
 
+  const getLanguages = async () => {
+    const res = await getBaseSettings();
+    if (res) setLanguages(res.languages);
+  };
+
   React.useEffect(() => {
     const language = getFromLS("locale");
     setSelectedLanguage(language || "en");
+    getLanguages();
   }, []);
 
   return (

@@ -11,6 +11,7 @@ const ProductPage: NextPage<ProductResponse> = (data: ProductResponse) => {
     <MainLayout>
       <Head>
         <title>{data.title}</title>
+        <meta name="description" content={data.description} />
       </Head>
       <ProductDetails data={data} />
     </MainLayout>
@@ -20,20 +21,16 @@ const ProductPage: NextPage<ProductResponse> = (data: ProductResponse) => {
 export default ProductPage;
 
 export async function getStaticPaths() {
-  // Fetch the list of product IDs from the external API.
-  // Ensure that getProducts returns an array of product IDs or handle undefined/null cases.
-  const productIds = await getProducts(0, 100);
+  const productsData = await getProducts(0, 100);
+  const productIds = productsData?.products?.map((product) => product.id);
 
-  // Check if productIds is an array, and if not, set it to an empty array.
-  const paths = Array.isArray(productIds)
-    ? productIds.map((id: string | number) => ({
-        params: { productId: id.toString() }, // Make sure 'id' is a string.
-      }))
-    : [];
+  const paths = productIds.map((id: string | number) => ({
+    params: { productId: id.toString() },
+  }));
 
   return {
     paths,
-    fallback: "blocking", // You can use 'blocking', 'true', or 'false' for fallback.
+    fallback: false,
   };
 }
 
@@ -45,7 +42,7 @@ export const getStaticProps: GetStaticProps<ProductResponse> = async (
 
   const data = await getProduct(id);
   return {
-    props: data, // Directly return the 'data' object as 'props'
-    revalidate: 3600, // Time in seconds (e.g., 1 hour). This specifies how often the page should be regenerated. we can change it as per client requirement
+    props: data,
+    revalidate: 60,
   };
 };
